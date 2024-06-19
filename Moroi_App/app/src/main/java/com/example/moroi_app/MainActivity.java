@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.robotemi.sdk.Robot;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -70,8 +72,11 @@ public class MainActivity extends AppCompatActivity {
 
     private int p1Row = 0, p1Col = 0, p2Row = ROWS - 1, p2Col = COLS - 1;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         playerPrompt = findViewById(R.id.playerPrompt);
