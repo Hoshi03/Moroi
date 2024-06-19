@@ -1,5 +1,6 @@
 package com.example.moroi_app;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -174,9 +175,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // currentPlayer가 1인지 2인지에 따라 플레이어 "row,col" 로 goto
         int color = currentPlayer == 1 ? Color.BLUE : Color.RED;
         buttons[row][col].setBackgroundColor(color);
 
+        
+        //p1이 p2 잡은 경우 p2를 맵 우하단으로 goto
         if (currentPlayer == 1) {
             p1Row = row;
             p1Col = col;
@@ -185,12 +189,15 @@ public class MainActivity extends AppCompatActivity {
                 p2Col = COLS - 1;
                 buttons[p2Row][p2Col].setBackgroundColor(Color.RED);
             }
-            // p1이 p2 시작점에 도달 겜튼
+
+            // p1이 p2 시작점에 도달 겜끝
             if (row == ROWS - 1 && col == COLS - 1) {
                 showVictoryMessage(1);
                 return;
             }
-        } else {
+        }
+        //p2가 p1 잡은 경우 p1를 멥 좌상단으로 goto
+        else {
             p2Row = row;
             p2Col = col;
             if (row == p1Row && col == p1Col) {
@@ -198,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 p1Col = 0;
                 buttons[p1Row][p1Col].setBackgroundColor(Color.BLUE);
             }
+
             // p2가 p1 시작점에 도달 겜끝
             if (row == 0 && col == 0) {
                 showVictoryMessage(2);
@@ -211,12 +219,16 @@ public class MainActivity extends AppCompatActivity {
                 if (pb.player == 1 && currentPlayer == 2) {
                     p2Row = ROWS - 1;
                     p2Col = COLS -1;
+                    //p1이 p2 예측한 경우
                     buttons[p2Row][p2Col].setBackgroundColor(Color.RED);
-                } else if (pb.player == 2 && currentPlayer == 1) {
+                }
+
+                else if (pb.player == 2 && currentPlayer == 1) {
                     p1Row = 0;
                     p1Col = 0;
                     buttons[p1Row][p1Col].setBackgroundColor(Color.BLUE);
                 }
+
                 iterator.remove();
                 predictButtons[row][col] = false;
                 if ((row + col) % 2 == 0) {
@@ -317,10 +329,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void showVictoryMessage(int player) {
+        disableAllButtons();
+
+        if (player == 1){
+            Intent intent = new Intent(MainActivity.this, P1Win.class);
+            startActivity(intent);
+            finish();
+        }
+
+        else  {
+            Intent intent = new Intent(MainActivity.this, P2Win.class);
+            startActivity(intent);
+            finish();
+        }
+
         String message = player == 1 ? "Player 1 Wins!" : "Player 2 Wins!";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        disableAllButtons();
     }
 
     //겜끝나면 버튼 다 못누르게 만들기
