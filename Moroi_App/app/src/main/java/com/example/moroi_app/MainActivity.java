@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-/*import com.robotemi.sdk.Robot;*/
+import com.robotemi.sdk.Robot;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
     // 지금은 상수로 행,열 박아뒀는데 서버넣으면 겜 시작할때 난이도 선택하면 조절 가능하게 한 다음
     // oncreate에서 넣어주는걸로 수정하면 될것같습니다
-    
-    private static final int ROWS = 7;
-    private static final int COLS = 13;
-    private static final int obstacleRemainTime = 5; // 5로햐여  p1이 설치 - p2턴 3턴지남 장애물 해제 가능
+
+    private static final int ROWS = 6;
+    private static final int COLS = 6;
+    private static final int obstacleRemainTime = 2; // 5로햐여  p1이 설치 - p2턴 3턴지남 장애물 해제 가능
     private static final int predictRemainTime = 2;
 
     private static boolean[][] obstacleButtons = new boolean[ROWS][COLS];
@@ -70,12 +70,16 @@ public class MainActivity extends AppCompatActivity {
     private boolean blockMode = false;
     private boolean predictMode = false;
 
+    private Robot robot;
+
     private int p1Row = 0, p1Col = 0, p2Row = ROWS - 1, p2Col = COLS - 1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        robot = Robot.getInstance();
+        robot.goTo("0,0");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -183,8 +187,9 @@ public class MainActivity extends AppCompatActivity {
         // currentPlayer가 1인지 2인지에 따라 플레이어 "row,col" 로 goto
         int color = currentPlayer == 1 ? Color.BLUE : Color.RED;
         buttons[row][col].setBackgroundColor(color);
+        if (currentPlayer == 1) robot.goTo(row+","+col);
 
-        
+
         //p1이 p2 잡은 경우 p2를 맵 우하단으로 goto
         if (currentPlayer == 1) {
             p1Row = row;
@@ -209,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
                 p1Row = 0;
                 p1Col = 0;
                 buttons[p1Row][p1Col].setBackgroundColor(Color.BLUE);
+                if (currentPlayer == 1) robot.goTo(0+","+0);
             }
 
             // p2가 p1 시작점에 도달 겜끝
@@ -271,16 +277,18 @@ public class MainActivity extends AppCompatActivity {
         if (currentPlayer == 1) currentTurn++;
         obstacleButtons[row][col] = true;
 
-        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.obstacle);
-        int buttonWidth = button.getWidth();
-        int buttonHeight = button.getHeight();
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, buttonWidth, buttonHeight, true);
-        button.setBackground(new BitmapDrawable(getResources(), scaledBitmap));
+        button.post(() -> {
+            // 버튼의 크기가 결정된 후에 비트맵을 스케일링
+            int buttonWidth = button.getWidth();
+            int buttonHeight = button.getHeight();
 
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.obstacle);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, buttonWidth/2, buttonHeight/2, true);
+            button.setBackground(new BitmapDrawable(getResources(), scaledBitmap));
+        });
         currentPlayer = currentPlayer == 1 ? 2 : 1;
         updatePlayerUI();
     }
-
     //예측
     private void placePrediction(int row, int col) {
         updatePredictionLifeTime();
@@ -292,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         updatePlayerUI();
     }
 
-    
+
     // 턴, 현재 플레이어 등 ui 갱신
     private void updatePlayerUI() {
         String s = currentPlayer == 1 ? "Player1의 다음 행동을 선택해주세요" : "Player2의 다음 행동을 선택해주세요";
@@ -363,4 +371,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
